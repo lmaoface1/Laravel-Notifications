@@ -23,10 +23,13 @@ class AuthController extends Controller
             'password' => Hash::make($validated['password']),
         ]);
 
+        $user->assignRole('viewer'); 
+
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
             'user'         => $user,
+            'roles'        => $user->getRoleNames(),       
             'access_token' => $token,
             'token_type'   => 'Bearer',
         ], 201);
@@ -50,6 +53,7 @@ class AuthController extends Controller
 
         return response()->json([
             'user'         => $user,
+            'roles'        => $user->getRoleNames(),       
             'access_token' => $token,
             'token_type'   => 'Bearer',
         ], 200);
@@ -65,6 +69,11 @@ class AuthController extends Controller
     // GET /api/me
     public function me(Request $request)
     {
-        return response()->json($request->user(), 200);
+        $user = $request->user();
+        return response()->json([
+            'user'        => $user,
+            'roles'       => $user->getRoleNames(),        
+            'permissions' => $user->getAllPermissions()->pluck('name'), 
+        ], 200);
     }
 }
