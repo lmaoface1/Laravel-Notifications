@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use App\Notifications\UserActivityNotification;
 
 class AuthController extends Controller
 {
@@ -23,13 +24,16 @@ class AuthController extends Controller
             'password' => Hash::make($validated['password']),
         ]);
 
-        $user->assignRole('viewer'); 
+        $user->assignRole('viewer');
+
+        // 👇 Send notification on register
+        $user->notify(new UserActivityNotification('Welcome! You have successfully registered.'));
 
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
             'user'         => $user,
-            'roles'        => $user->getRoleNames(),       
+            'roles'        => $user->getRoleNames(),
             'access_token' => $token,
             'token_type'   => 'Bearer',
         ], 201);
@@ -49,11 +53,14 @@ class AuthController extends Controller
             return response()->json(['message' => 'Invalid credentials'], 401);
         }
 
+        // 👇 Send notification on login
+        $user->notify(new UserActivityNotification('You have successfully logged in.'));
+
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
             'user'         => $user,
-            'roles'        => $user->getRoleNames(),       
+            'roles'        => $user->getRoleNames(),
             'access_token' => $token,
             'token_type'   => 'Bearer',
         ], 200);
@@ -72,8 +79,8 @@ class AuthController extends Controller
         $user = $request->user();
         return response()->json([
             'user'        => $user,
-            'roles'       => $user->getRoleNames(),        
-            'permissions' => $user->getAllPermissions()->pluck('name'), 
+            'roles'       => $user->getRoleNames(),
+            'permissions' => $user->getAllPermissions()->pluck('name'),
         ], 200);
     }
 }

@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\NotificationController;
 
 // Public Auth Routes
 Route::post('/register', [AuthController::class, 'register']);
@@ -13,16 +14,21 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/me',      [AuthController::class, 'me']);
 
-    // Admin only: view all users and create users
+    // 👇 Notification routes
+    Route::get('/notifications',          [NotificationController::class, 'index']);
+    Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead']);
+    Route::post('/notifications/read-all', [NotificationController::class, 'markAllAsRead']);
+
+    // Admin only
     Route::middleware('role:admin')->group(function () {
-        Route::get('users',         [UserController::class, 'index']);   // GET /api/users
-        Route::post('users',        [UserController::class, 'store']);   // POST /api/users
-        Route::delete('users/{id}', [UserController::class, 'destroy']); // DELETE /api/users/{id}
+        Route::get('users',         [UserController::class, 'index']);
+        Route::post('users',        [UserController::class, 'store']);
+        Route::delete('users/{id}', [UserController::class, 'destroy']);
     });
 
-    // Admin or Editor: view and update a user
+    // Admin or Editor
     Route::middleware('role:admin|editor')->group(function () {
-        Route::get('users/{id}',  [UserController::class, 'show']);   // GET /api/users/{id}
-        Route::put('users/{id}',  [UserController::class, 'update']); // PUT /api/users/{id}
+        Route::get('users/{id}',  [UserController::class, 'show']);
+        Route::put('users/{id}',  [UserController::class, 'update']);
     });
 });
