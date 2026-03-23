@@ -26,7 +26,7 @@ class AuthController extends Controller
 
         $user->assignRole('viewer');
 
-        // 👇 Send notification on register
+        // Send notification on register
         $user->notify(new UserActivityNotification('Welcome! You have successfully registered.'));
 
         $token = $user->createToken('auth_token')->plainTextToken;
@@ -53,7 +53,7 @@ class AuthController extends Controller
             return response()->json(['message' => 'Invalid credentials'], 401);
         }
 
-        // 👇 Send notification on login
+        // Send notification on login
         $user->notify(new UserActivityNotification('You have successfully logged in.'));
 
         $token = $user->createToken('auth_token')->plainTextToken;

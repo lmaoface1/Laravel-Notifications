@@ -33,7 +33,7 @@ class UserController extends Controller
 
         $user->assignRole($validated['role'] ?? 'viewer');
 
-        // 👇 Send notification when admin creates a user
+        // Send notification when admin creates a user
         $user->notify(new UserActivityNotification('Your account has been created by an administrator.'));
 
         return response()->json([
@@ -92,7 +92,7 @@ class UserController extends Controller
             return response()->json(['message' => 'User not found'], 404);
         }
 
-        // 👇 Send notification before deleting
+        // Send notification before deleting
         $user->notify(new UserActivityNotification('Your account has been deleted by an administrator.'));
 
         $user->delete();
